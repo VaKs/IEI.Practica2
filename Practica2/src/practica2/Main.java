@@ -143,8 +143,10 @@ public class Main extends javax.swing.JFrame {
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         //TODO: recoger datos del formulario.
         //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.
-        //TODO: Buscar resultados en los sitios pedidos
-        //TODO: Mostrr resultados en TablaResultado
+        //TODO: Buscar resultados en Amazon si se ha pedido
+        //TODO: Mostrar resultados en TablaResultado
+        //TODO: Buscar resultados en Fnac si se ha pedido
+        //TODO: Mostrar resultados en TablaResultado
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
