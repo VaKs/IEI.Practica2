@@ -5,6 +5,9 @@
  */
 package practica2;
 
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author vaks
@@ -69,8 +72,7 @@ public class Main extends javax.swing.JFrame {
 
         TablaResultado.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "Web", "Título", "Autor", "Precio", "Descuento"
@@ -137,10 +139,21 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void BtnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnLimpiarActionPerformed
-        //TODO: Limpiar seleccion
+        TxTAutor.setText("");
+        TxTLibro.setText("");
+        CBAmazon.setSelected(false);
+        CBFnac.setSelected(false);
+        DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
+        model.setRowCount(0);
     }//GEN-LAST:event_BtnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        /* 
+        Ejemplo insertar registros en la tabla
+        DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
+        model.addRow(new Object[]{"Web", "Autor", "titulo", "precio", "descuento"}); 
+        */
+        
         //TODO: recoger datos del formulario.
         //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.
         //TODO: Buscar resultados en Amazon si se ha pedido
