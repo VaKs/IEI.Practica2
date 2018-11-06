@@ -5,6 +5,7 @@
  */
 package practica2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -241,15 +242,16 @@ public class Main extends javax.swing.JFrame {
         
         
         //waitForPageLoad(driver);  //div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')
-        List<WebElement> listaLibros = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc')]/a[contains(@class, 'js-minifa-title')]"));         
-        System.out.println("OJO:: "+listaLibros.toString());
+        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));                  
+
+        ArrayList<Libro> librosResultado = new ArrayList<>();
+        Libro libro;
          
-        String str;int i=0;
-         
-        for(WebElement lib : listaLibros){
-             
-            str=lib.getText();
-            System.out.println("Titulo "+i+": "+str);	
+        for(WebElement lib : listaTitulos){
+            libro =new Libro("www.fnac.es");
+            libro.setTitulo(lib.getText());
+            librosResultado.add(libro);
+            
 	}
          
         //                                                           | lista de elementos   
