@@ -6,6 +6,9 @@
 package practica2;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.openqa.selenium.By;
@@ -223,13 +226,42 @@ public class Main extends javax.swing.JFrame {
 
         navBar.sendKeys(titulo+" "+autor);
         navBar.submit();
-        // Ruta que se espera alcanzar: div id=col_gauche/div class=SearchNav js-contentMenu/div class=nav/div class=content/ul class=affine/li class=Affine-item solo/span data-category=2!1
         
+        // Ruta que se espera alcanzar: div id=col_gauche/div class=SearchNav js-contentMenu/div class=nav/div class=content/ul class=affine/li class=Affine-item solo/span data-category=2!1
         WebElement categoriaLibro = driver.findElement(By.xpath("//*[contains(@data-category, '2!1')]"));
         categoriaLibro.click();
         
+        try {
+            TimeUnit.SECONDS.sleep(10);
+            //WebDriverWait wait = new WebDriverWait(driver, 10);
+            //wait.until(ExpectedConditions.presenceOfElementLocated(By.className("Affine-item Affine-item--arrow")));
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
-        //*div id=dontTouchThisDiv/
+        
+        //waitForPageLoad(driver);  //div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')
+        List<WebElement> listaLibros = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc')]/a[contains(@class, 'js-minifa-title')]"));         
+        System.out.println("OJO:: "+listaLibros.toString());
+         
+        String str;int i=0;
+         
+        for(WebElement lib : listaLibros){
+             
+            str=lib.getText();
+            System.out.println("Titulo "+i+": "+str);	
+	}
+         
+        //                                                           | lista de elementos   
+        //*div id=dontTouchThisDiv/ul class=articleList Article-list/li class="clearfix Article-item js-ProductList"
+        //  /div class=Article-itemInfo/div class=Article-infoContent/
+                //titulo=> p class=Article-desc/a class= js-minifa-title
+                //autor=>  p class=Article-descSub/a
+        //  /div class=Article-itemAction/div class=Article-actionContent/div class=Article-price/div class=bigPricerFA bigPricerFA--book clearfix/div class=floatl
+        //      /precio=> span class=oldPrice
+        //      /precio con descuento=> a class=userPrice
+        //          /decimales => sup
+                
         
         
         /*
