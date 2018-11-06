@@ -5,8 +5,17 @@
  */
 package practica2;
 
+import java.util.List;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  *
@@ -148,17 +157,23 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_BtnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        /* 
-        Ejemplo insertar registros en la tabla
-        DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
-        model.addRow(new Object[]{"Web", "Autor", "titulo", "precio", "descuento"}); 
-        */
+        //Recoger datos del formulario.
+        String titulo=TxTLibro.getText();
+        String autor=TxTAutor.getText(); 
+        boolean amazon = CBAmazon.isSelected();
+        boolean fnac = CBFnac.isSelected();
         
-        //TODO: recoger datos del formulario.
-        //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.
-        //TODO: Buscar resultados en Amazon si se ha pedido
-        //TODO: Mostrar resultados en TablaResultado
+        
+        //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.    
+        
         //TODO: Buscar resultados en Fnac si se ha pedido
+        if(fnac){
+            buscarFnac(titulo,autor);   
+        }
+        //TODO: Buscar resultados en Amazon si se ha pedido
+        if(amazon){
+            buscarAmazon(titulo,autor);   
+        }
         //TODO: Mostrar resultados en TablaResultado
     }//GEN-LAST:event_btnBuscarActionPerformed
 
@@ -196,6 +211,49 @@ public class Main extends javax.swing.JFrame {
                 new Main().setVisible(true);
             }
         });
+    }
+    
+    private void buscarFnac(String titulo, String autor) {
+        System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        
+        driver.get("https://www.fnac.es/");
+        driver.manage().window().maximize();
+        WebElement navBar = driver.findElement(By.id("Fnac_Search"));
+
+        navBar.sendKeys(titulo+" "+autor);
+        navBar.submit();
+        // Ruta que se espera alcanzar: div id=col_gauche/div class=SearchNav js-contentMenu/div class=nav/div class=content/ul class=affine/li class=Affine-item solo/span data-category=2!1
+        
+        WebElement categoriaLibro = driver.findElement(By.xpath("//*[contains(@data-category, '2!1')]"));
+        categoriaLibro.click();
+        
+        
+        //*div id=dontTouchThisDiv/
+        
+        
+        /*
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pnnext")));
+        
+        if(driver.getTitle().equals("Universidad Politécnia de Valencia - Buscar con Google")) System.out.println("Guay!!");
+        else System.out.println("FucK");
+        
+        driver.quit();
+*/
+
+        
+    }
+    
+    private void buscarAmazon(String titulo, String autor){
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    private void addLibroToTabla(Libro libro){
+
+        DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
+        model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento()});
+    
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
