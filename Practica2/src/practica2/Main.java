@@ -217,7 +217,7 @@ public class Main extends javax.swing.JFrame {
         });
     }
     
-    private void buscarFnac(String titulo, String autor) {
+    private ArrayList<Libro> buscarFnac(String titulo, String autor) {
         System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
         
@@ -228,23 +228,25 @@ public class Main extends javax.swing.JFrame {
         navBar.sendKeys(titulo+" "+autor);
         navBar.submit();
         
-        // Ruta que se espera alcanzar: div id=col_gauche/div class=SearchNav js-contentMenu/div class=nav/div class=content/ul class=affine/li class=Affine-item solo/span data-category=2!1
         WebElement categoriaLibro = driver.findElement(By.xpath("//*[contains(@data-category, '2!1')]"));
         categoriaLibro.click();
         
         try {
             TimeUnit.SECONDS.sleep(10);
-            //WebDriverWait wait = new WebDriverWait(driver, 10);
-            //wait.until(ExpectedConditions.presenceOfElementLocated(By.className("Affine-item Affine-item--arrow")));
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
-        //waitForPageLoad(driver);  //div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')
+
         List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
         List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
-
+        //List<WebElement> listaPecios = driver.findElements(By.xpath("//span"));
+        /*
+        if(/moves/roll[2]/@player eq '1')
+        then 'player: 1'
+        else ('player: ', data(/moves/roll[2]/@player) )
+        */
+        driver.quit();
+        
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
         
@@ -255,30 +257,12 @@ public class Main extends javax.swing.JFrame {
             librosResultado.add(libro);
             
 	}
-         
-        //                                                           | lista de elementos   
-        //*div id=dontTouchThisDiv/ul class=articleList Article-list/li class="clearfix Article-item js-ProductList"
-        //  /div class=Article-itemInfo/div class=Article-infoContent/
-                //titulo=> p class=Article-desc/a class= js-minifa-title
-                //autor=>  p class=Article-descSub/a
+        
+        return librosResultado;
         //  /div class=Article-itemAction/div class=Article-actionContent/div class=Article-price/div class=bigPricerFA bigPricerFA--book clearfix/div class=floatl
         //      /precio=> span class=oldPrice
         //      /precio con descuento=> a class=userPrice
         //          /decimales => sup
-                
-        
-        
-        /*
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pnnext")));
-        
-        if(driver.getTitle().equals("Universidad Politécnia de Valencia - Buscar con Google")) System.out.println("Guay!!");
-        else System.out.println("FucK");
-        
-        driver.quit();
-*/
-
-        
     }
     
     private void buscarAmazon(String titulo, String autor){
