@@ -242,14 +242,16 @@ public class Main extends javax.swing.JFrame {
         
         
         //waitForPageLoad(driver);  //div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')
-        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));                  
+        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
+        List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
 
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
-         
-        for(WebElement lib : listaTitulos){
+        
+        for(int i=0; i<listaTitulos.size();i++){
             libro =new Libro("www.fnac.es");
-            libro.setTitulo(lib.getText());
+            libro.setTitulo(listaTitulos.get(i).getText());
+            libro.setAutor(listaAutores.get(i).getText());
             librosResultado.add(libro);
             
 	}
