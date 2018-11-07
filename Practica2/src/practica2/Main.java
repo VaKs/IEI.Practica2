@@ -232,14 +232,14 @@ public class Main extends javax.swing.JFrame {
         categoriaLibro.click();
         
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
         List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
-        //List<WebElement> listaPecios = driver.findElements(By.xpath("//span"));
+        List<WebElement> listaPecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//a[contains(@class,'userPrice')]"));
         /*
         if(/moves/roll[2]/@player eq '1')
         then 'player: 1'
@@ -248,12 +248,20 @@ public class Main extends javax.swing.JFrame {
         
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
+        String precioStr;
+        double precio;
         
         for(int i=0; i<listaTitulos.size();i++){
             libro =new Libro("fnac.es");
+            precioStr=listaPecios.get(i).getText();
+            precioStr=precioStr.substring(0, precioStr.length() - 1);
+            precioStr=precioStr.replace(',', '.');
+            precio=Double.parseDouble(precioStr);
+            
             libro.setLink(listaTitulos.get(i).getAttribute("href"));
             libro.setTitulo(listaTitulos.get(i).getText());
             libro.setAutor(listaAutores.get(i).getText());
+            libro.setPrecio(precio);
             librosResultado.add(libro);
             
 	}
