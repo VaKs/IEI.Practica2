@@ -120,16 +120,15 @@ public class Main extends javax.swing.JFrame {
                         .addComponent(CBAmazon)
                         .addComponent(TxTLibro)))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 798, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lTitulo)
                             .addComponent(TxTLibro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -144,8 +143,10 @@ public class Main extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnBuscar)
-                            .addComponent(BtnLimpiar))))
-                .addContainerGap(31, Short.MAX_VALUE))
+                            .addComponent(BtnLimpiar))
+                        .addGap(0, 293, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
+                .addContainerGap())
         );
 
         pack();
@@ -166,19 +167,22 @@ public class Main extends javax.swing.JFrame {
         String autor=TxTAutor.getText(); 
         boolean amazon = CBAmazon.isSelected();
         boolean fnac = CBFnac.isSelected();
-        
+        ArrayList<Libro> libros = new ArrayList<>();
         
         //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.    
         
-        //TODO: Buscar resultados en Fnac si se ha pedido
+        //Buscar resultados en Fnac si se ha pedido
         if(fnac){
-            buscarFnac(titulo,autor);   
+            ArrayList<Libro> librosFnac = buscarFnac(titulo,autor); 
+            libros.addAll(librosFnac);
         }
         //TODO: Buscar resultados en Amazon si se ha pedido
         if(amazon){
-            buscarAmazon(titulo,autor);   
+            ArrayList<Libro> librosAmazon = buscarAmazon(titulo,autor);
+            libros.addAll(librosAmazon);
         }
-        //TODO: Mostrar resultados en TablaResultado
+        //Mostrar resultados en TablaResultado
+        addLibrosToTabla(libros);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
@@ -237,50 +241,67 @@ public class Main extends javax.swing.JFrame {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
-        List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
-        List<WebElement> listaPecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//a[contains(@class,'userPrice')]"));
-        /*
-        if(/moves/roll[2]/@player eq '1')
-        then 'player: 1'
-        else ('player: ', data(/moves/roll[2]/@player) )
-        */
-        
+        List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
+        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
+        List<WebElement> listaDivPrecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]"));
+        List<WebElement> listaPrecioFinal = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//a[contains(@class,'userPrice')]"));
+        List<WebElement> listaOldPecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]"));
+
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
-        String precioStr;
-        double precio;
+        String precioStr,descuentoStr;
+        double precio,descuento;
         
         for(int i=0; i<listaTitulos.size();i++){
             libro =new Libro("fnac.es");
-            precioStr=listaPecios.get(i).getText();
-            precioStr=precioStr.substring(0, precioStr.length() - 1);
-            precioStr=precioStr.replace(',', '.');
-            precio=Double.parseDouble(precioStr);
             
-            libro.setLink(listaTitulos.get(i).getAttribute("href"));
+            if(listaDivPrecios.get(i).findElement(By.xpath("//span[contains(@class,'oldPrice')]")).isDisplayed()){
+                precioStr=listaOldPecios.get(0).getText();
+                precioStr=precioStr.substring(0, precioStr.length() - 1);
+                precioStr=precioStr.replace(',', '.');
+                precio=Double.parseDouble(precioStr);
+                
+                descuentoStr=listaPrecioFinal.get(i).getText();
+                descuentoStr=descuentoStr.substring(0, descuentoStr.length() - 1);
+                descuentoStr=descuentoStr.replace(',', '.');
+                descuento=Double.parseDouble(descuentoStr);
+                
+                listaOldPecios.remove(0);
+                
+                libro.setPrecio(precio);
+                libro.setDescuento(descuento);
+                
+                
+            } else {                
+                precioStr=listaPrecioFinal.get(i).getText();
+                precioStr=precioStr.substring(0, precioStr.length() - 1);
+                precioStr=precioStr.replace(',', '.');
+                precio=Double.parseDouble(precioStr);
+                
+                libro.setPrecio(precio);
+                libro.setDescuento(0.0);// Preguntar como quiere el descuento
+            
+            }
+            
+            libro.setLink(listaAutores.get(i).getAttribute("href"));
             libro.setTitulo(listaTitulos.get(i).getText());
             libro.setAutor(listaAutores.get(i).getText());
-            libro.setPrecio(precio);
             librosResultado.add(libro);
             
 	}
         driver.quit();
         return librosResultado;
-        //  /div class=Article-itemAction/div class=Article-actionContent/div class=Article-price/div class=bigPricerFA bigPricerFA--book clearfix/div class=floatl
-        //      /precio=> span class=oldPrice
-        //      /precio con descuento=> a class=userPrice
-        //          /decimales => sup
     }
     
-    private void buscarAmazon(String titulo, String autor){
+    private ArrayList<Libro> buscarAmazon(String titulo, String autor){
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    private void addLibroToTabla(Libro libro){
-
+    private void addLibrosToTabla(ArrayList<Libro> libros){
         DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
-        model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
+        for (Libro libro: libros) {
+            model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
+        }
     
     }
 
