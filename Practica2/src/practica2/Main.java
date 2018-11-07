@@ -243,19 +243,20 @@ public class Main extends javax.swing.JFrame {
 
         List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
         List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
-        List<WebElement> listaDivPrecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]"));
-        List<WebElement> listaPrecioFinal = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//a[contains(@class,'userPrice')]"));
+        List<WebElement> listaPrecioFinal = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]/a[contains(@class,'userPrice') or (strong[contains(@class, 'userPrice') and not(contains(@class, 'userPriceNumerical'))])]"));
         List<WebElement> listaOldPecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]"));
 
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
         String precioStr,descuentoStr;
         double precio,descuento;
+        boolean tieneDescuento=false;
         
         for(int i=0; i<listaTitulos.size();i++){
             libro =new Libro("fnac.es");
-            
-            if(listaDivPrecios.get(i).findElement(By.xpath("//span[contains(@class,'oldPrice')]")).isDisplayed()){
+            tieneDescuento=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i+1)+"]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]")).size()>0;
+            if(tieneDescuento){
+                
                 precioStr=listaOldPecios.get(0).getText();
                 precioStr=precioStr.substring(0, precioStr.length() - 1);
                 precioStr=precioStr.replace(',', '.');
@@ -265,19 +266,16 @@ public class Main extends javax.swing.JFrame {
                 descuentoStr=descuentoStr.substring(0, descuentoStr.length() - 1);
                 descuentoStr=descuentoStr.replace(',', '.');
                 descuento=Double.parseDouble(descuentoStr);
-                
+
                 listaOldPecios.remove(0);
-                
+
                 libro.setPrecio(precio);
                 libro.setDescuento(descuento);
-                
-                
             } else {                
                 precioStr=listaPrecioFinal.get(i).getText();
                 precioStr=precioStr.substring(0, precioStr.length() - 1);
                 precioStr=precioStr.replace(',', '.');
                 precio=Double.parseDouble(precioStr);
-                
                 libro.setPrecio(precio);
                 libro.setDescuento(0.0);// Preguntar como quiere el descuento
             
