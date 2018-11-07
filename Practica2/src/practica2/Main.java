@@ -88,7 +88,7 @@ public class Main extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Web", "Título", "Autor", "Precio", "Descuento"
+                "Web", "Título", "Autor", "Precio", "Descuento", "Enlace"
             }
         ));
         jScrollPane1.setViewportView(TablaResultado);
@@ -119,9 +119,9 @@ public class Main extends javax.swing.JFrame {
                         .addComponent(CBFnac)
                         .addComponent(CBAmazon)
                         .addComponent(TxTLibro)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(37, 37, 37))
+                .addContainerGap(69, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,19 +245,19 @@ public class Main extends javax.swing.JFrame {
         then 'player: 1'
         else ('player: ', data(/moves/roll[2]/@player) )
         */
-        driver.quit();
         
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
         
         for(int i=0; i<listaTitulos.size();i++){
-            libro =new Libro("www.fnac.es");
+            libro =new Libro("fnac.es");
+            libro.setLink(listaTitulos.get(i).getAttribute("href"));
             libro.setTitulo(listaTitulos.get(i).getText());
             libro.setAutor(listaAutores.get(i).getText());
             librosResultado.add(libro);
             
 	}
-        
+        driver.quit();
         return librosResultado;
         //  /div class=Article-itemAction/div class=Article-actionContent/div class=Article-price/div class=bigPricerFA bigPricerFA--book clearfix/div class=floatl
         //      /precio=> span class=oldPrice
@@ -272,7 +272,7 @@ public class Main extends javax.swing.JFrame {
     private void addLibroToTabla(Libro libro){
 
         DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
-        model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento()});
+        model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
     
     }
 

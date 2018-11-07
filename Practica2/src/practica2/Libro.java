@@ -7,6 +7,7 @@ public class Libro {
     private double precio;
     private double descuento;
     private String web;
+    private String link;
 
     public Libro() {
     }
@@ -15,14 +16,14 @@ public class Libro {
         this.web = web;
     }
 
-    public Libro(String titulo, String autor, double precio, String web) {
+    public Libro(String titulo, String autor, double precio, String web, String link) {
         this.titulo = titulo;
         this.autor = autor;
         this.precio = precio;
         this.web= web;
     }
 
-    public Libro(String titulo, String autor, double precio, double descuento, String web) {
+    public Libro(String titulo, String autor, double precio, double descuento, String web, String link) {
         this.titulo = titulo;
         this.autor = autor;
         this.precio = precio;
@@ -68,6 +69,14 @@ public class Libro {
 
     public void setWeb(String web) {
         this.web = web;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
     
     
