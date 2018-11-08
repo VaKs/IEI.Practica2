@@ -169,7 +169,7 @@ public class Main extends javax.swing.JFrame {
         boolean fnac = CBFnac.isSelected();
         ArrayList<Libro> libros = new ArrayList<>();
         
-        //TODO: si no se ha seleccionado: titulo, autor y un sitio web mostrar error.    
+        //TODO: si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.    
         
         //Buscar resultados en Fnac si se ha pedido
         if(fnac){
@@ -222,13 +222,16 @@ public class Main extends javax.swing.JFrame {
     }
     
     private ArrayList<Libro> buscarFnac(String titulo, String autor) {
+        //preparar el driver
         System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
         
         driver.get("https://www.fnac.es/");
+        //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
         driver.manage().window().maximize();
+        
+        
         WebElement navBar = driver.findElement(By.id("Fnac_Search"));
-
         navBar.sendKeys(titulo+" "+autor);
         navBar.submit();
         
@@ -241,17 +244,16 @@ public class Main extends javax.swing.JFrame {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
-        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-descSub')]/a[1]"));
+        List<WebElement> listaTitulos = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
         List<WebElement> listaPrecioFinal = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]/a[contains(@class,'userPrice') or (strong[contains(@class, 'userPrice') and not(contains(@class, 'userPriceNumerical'))])]"));
         List<WebElement> listaOldPecios = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]"));
 
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
-        String precioStr,descuentoStr;
+        String precioStr,descuentoStr,autores;
         double precio,descuento;
         boolean tieneDescuento=false;
-        
+
         for(int i=0; i<listaTitulos.size();i++){
             libro =new Libro("fnac.es");
             tieneDescuento=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i+1)+"]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]")).size()>0;
@@ -278,14 +280,23 @@ public class Main extends javax.swing.JFrame {
                 precio=Double.parseDouble(precioStr);
                 libro.setPrecio(precio);
                 libro.setDescuento(0.0);// Preguntar como quiere el descuento
-            
             }
             
-            libro.setLink(listaAutores.get(i).getAttribute("href"));
-            libro.setTitulo(listaTitulos.get(i).getText());
-            libro.setAutor(listaAutores.get(i).getText());
-            librosResultado.add(libro);
+            List<WebElement> listaAutores=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i+1)+"]/div/div/div/p[contains(@class, 'Article-descSub')]/a"));
+            autores="";
+            if(listaAutores.size()==0) libro.setAutor("----");
+            else if(listaAutores.size()>0){
+                for(int j=0; j<listaAutores.size();j++){
+                    if(j>0)autores=autores+", "+listaAutores.get(j).getText();
+                    else autores=listaAutores.get(j).getText();
+                }
+                libro.setAutor(autores);
+            }
             
+            libro.setLink(listaTitulos.get(i).getAttribute("href"));
+            libro.setTitulo(listaTitulos.get(i).getText());
+            
+            librosResultado.add(libro);
 	}
         driver.quit();
         return librosResultado;
@@ -298,7 +309,7 @@ public class Main extends javax.swing.JFrame {
     private void addLibrosToTabla(ArrayList<Libro> libros){
         DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
         for (Libro libro: libros) {
-            model.addRow(new Object[]{libro.getWeb(), libro.getAutor(), libro.getTitulo(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
+            model.addRow(new Object[]{libro.getWeb(), libro.getTitulo(), libro.getAutor(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
         }
     
     }
