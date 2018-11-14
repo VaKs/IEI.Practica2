@@ -5,7 +5,7 @@ public class Libro {
     private String titulo;
     private String autor;
     private double precio;
-    private double descuento;
+    private String descuento;
     private String web;
     private String link;
 
@@ -23,7 +23,7 @@ public class Libro {
         this.web= web;
     }
 
-    public Libro(String titulo, String autor, double precio, double descuento, String web, String link) {
+    public Libro(String titulo, String autor, double precio, String descuento, String web, String link) {
         this.titulo = titulo;
         this.autor = autor;
         this.precio = precio;
@@ -55,11 +55,11 @@ public class Libro {
         this.precio = precio;
     }
 
-    public double getDescuento() {
+    public String getDescuento() {
         return descuento;
     }
 
-    public void setDescuento(double descuento) {
+    public void setDescuento(String descuento) {
         this.descuento = descuento;
     }
 

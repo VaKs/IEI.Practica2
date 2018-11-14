@@ -251,7 +251,7 @@ public class Main extends javax.swing.JFrame {
         ArrayList<Libro> librosResultado = new ArrayList<>();
         Libro libro;
         String precioStr,descuentoStr,autores;
-        double precio,descuento;
+        double precio,descuento,porcentajeDescuento;
         boolean tieneDescuento=false;
 
         for(int i=0; i<listaTitulos.size();i++){
@@ -271,15 +271,17 @@ public class Main extends javax.swing.JFrame {
 
                 listaOldPecios.remove(0);
 
-                libro.setPrecio(precio);
-                libro.setDescuento(descuento);
+                libro.setPrecio(descuento);
+                porcentajeDescuento=100-((descuento*100)/precio);
+                porcentajeDescuento=(double)Math.round(porcentajeDescuento * 100d) / 100d;
+                libro.setDescuento(porcentajeDescuento+"%");
             } else {                
                 precioStr=listaPrecioFinal.get(i).getText();
                 precioStr=precioStr.substring(0, precioStr.length() - 1);
                 precioStr=precioStr.replace(',', '.');
                 precio=Double.parseDouble(precioStr);
                 libro.setPrecio(precio);
-                libro.setDescuento(0.0);// Preguntar como quiere el descuento
+                libro.setDescuento("No");// Preguntar como quiere el descuento
             }
             
             List<WebElement> listaAutores=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i+1)+"]/div/div/div/p[contains(@class, 'Article-descSub')]/a"));
