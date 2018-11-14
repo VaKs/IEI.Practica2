@@ -242,8 +242,9 @@ public class Main extends javax.swing.JFrame {
         navBar.sendKeys(titulo+" "+autor);
         navBar.submit();
         
-        WebElement categoriaLibro = driver.findElement(By.xpath("//*[contains(@data-category, '2!1')]"));
-        categoriaLibro.click();
+        List<WebElement> categoriaLibro = driver.findElements(By.xpath("//span[contains(@data-category, '2!1')][contains(@class,'Affine-link lienInverse')]"));
+        
+        if(categoriaLibro.size()>0) categoriaLibro.get(0).click();
         
         ArrayList<Libro> librosResultado = new ArrayList<>();
         boolean siguientePag= false;
@@ -346,17 +347,6 @@ public class Main extends javax.swing.JFrame {
             Thread.sleep(100);
         }
     }
-  /*  static void waitForPageLoad(WebDriver wdriver) {
-        WebDriverWait wait = new WebDriverWait(wdriver, 60);
-        Predicate<WebDriver> pageLoaded=new Predicate<WebDriver>() {
-            @Override
-            public boolean apply(WebDriver t) {
-                return ((JavascriptExecutor) t).executeScript("return document.readyState").equals("complete");
-            }
-        };
-           // return ((JavascriptExecutor) input).executeScript("return document.readyState").equals("complete");}
-        wait.until(pageLoaded);
-}*/
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtnLimpiar;
