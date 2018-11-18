@@ -165,29 +165,28 @@ public class Main extends javax.swing.JFrame {
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         //Recoger datos del formulario.
-        String titulo=TxTLibro.getText();
-        String autor=TxTAutor.getText(); 
+        String titulo = TxTLibro.getText();
+        String autor = TxTAutor.getText();
         boolean amazon = CBAmazon.isSelected();
         boolean fnac = CBFnac.isSelected();
         ArrayList<Libro> libros = new ArrayList<>();
-        
+
         //TODO: si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.    
-        
         //Buscar resultados en Fnac si se ha pedido
-        if(fnac){
-            ArrayList<Libro> librosFnac = null; 
+        if (fnac) {
+            ArrayList<Libro> librosFnac = null;
             try {
-                librosFnac = buscarFnac(titulo,autor);
+                librosFnac = buscarFnac(titulo, autor);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
             libros.addAll(librosFnac);
         }
         //TODO: Buscar resultados en Amazon si se ha pedido
-        if(amazon){
+        if (amazon) {
             try {
                 ArrayList<Libro> librosAmazon;
-                librosAmazon = buscarAmazon(titulo,autor);
+                librosAmazon = buscarAmazon(titulo, autor);
                 libros.addAll(librosAmazon);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -232,184 +231,234 @@ public class Main extends javax.swing.JFrame {
             }
         });
     }
-    
+
     private ArrayList<Libro> buscarFnac(String titulo, String autor) throws InterruptedException {
         //preparar el driver
         System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
-        
+
         driver.get("https://www.fnac.es/");
         //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
         driver.manage().window().maximize();
-        
-        
+
         WebElement navBar = driver.findElement(By.id("Fnac_Search"));
-        navBar.sendKeys(titulo+" "+autor);
+        navBar.sendKeys(titulo + " " + autor);
         navBar.submit();
-        
+
         List<WebElement> categoriaLibro = driver.findElements(By.xpath("//span[contains(@data-category, '2!1')][contains(@class,'Affine-link lienInverse')]"));
-        
-        if(categoriaLibro.size()>0) categoriaLibro.get(0).click();
+
+        if (categoriaLibro.size() > 0) {
+            categoriaLibro.get(0).click();
+        }
         //busca el libro el que sea y luego elije la categoria libros.
         ArrayList<Libro> librosResultado = new ArrayList<>();
-        boolean siguientePag= false;
-        do{
+        boolean siguientePag = false;
+        do {
+            
             WaitForAjax(driver);
 
             List<WebElement> articulosPorPagina = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]"));
 
             Libro libro;
-            String precioStr,descuentoStr,autores;
-            double precio,descuento,porcentajeDescuento;
-            boolean tieneDescuento=false;
+            String precioStr, descuentoStr, autores;
+            double precio, descuento, porcentajeDescuento;
+            boolean tieneDescuento = false;
 
-            for(int i=1; i<=articulosPorPagina.size();i++){
-                libro =new Libro("fnac.es");
-                
-                WebElement precioFinal = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i)+"]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]/a[contains(@class,'userPrice') or (strong[contains(@class, 'userPrice')])][1]")); 
-                
-                tieneDescuento=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i)+"]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]")).size()>0;
-                if(tieneDescuento){
+            for (int i = 1; i <= articulosPorPagina.size(); i++) {
+                libro = new Libro("fnac.es");
 
-                    WebElement oldPecio = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i)+"]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]"));
-                    
-                    precioStr=oldPecio.getText();
-                    precioStr=precioStr.substring(0, precioStr.length() - 1);
-                    precioStr=precioStr.replace(',', '.');
-                    precio=Double.parseDouble(precioStr);
+                WebElement precioFinal = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')][" + (i) + "]/div[contains(@class, 'Article-itemGroup')]//div[contains(@class,'floatl')]/a[contains(@class,'userPrice') or (strong[contains(@class, 'userPrice')])][1]"));
 
-                    descuentoStr=precioFinal.getText();
-                    descuentoStr=descuentoStr.substring(0, descuentoStr.length() - 1);
-                    descuentoStr=descuentoStr.replace(',', '.');
-                    descuento=Double.parseDouble(descuentoStr);
+                tieneDescuento = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')][" + (i) + "]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]")).size() > 0;
+                if (tieneDescuento) {
 
-                    libro.setPrecio(descuento);
-                    porcentajeDescuento=100-((descuento*100)/precio);
-                    porcentajeDescuento=(double)Math.round(porcentajeDescuento * 100d) / 100d;
-                    libro.setDescuento(porcentajeDescuento+"%");
-                } else {                
-                    precioStr=precioFinal.getText();
-                    precioStr=precioStr.substring(0, precioStr.length() - 1);
-                    precioStr=precioStr.replace(',', '.');
-                    precio=Double.parseDouble(precioStr);
-                    libro.setPrecio(precio);
+                    WebElement oldPecio = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')][" + (i) + "]/div[contains(@class, 'Article-itemGroup')]//span[contains(@class,'oldPrice')]"));
+
+                    precioStr = oldPecio.getText();
+                    precioStr = precioStr.substring(0, precioStr.length() - 1);
+                    precioStr = precioStr.replace(',', '.');
+                    precio = Double.parseDouble(precioStr);
+
+                    descuentoStr = precioFinal.getText();
+                    descuentoStr = descuentoStr.substring(0, descuentoStr.length() - 1);
+                    descuentoStr = descuentoStr.replace(',', '.');
+                    descuento = Double.parseDouble(descuentoStr);
+
+                    libro.setPrecio(descuentoStr);
+                    porcentajeDescuento = 100 - ((descuento * 100) / precio);
+                    porcentajeDescuento = (double) Math.round(porcentajeDescuento * 100d) / 100d;
+                    libro.setDescuento(porcentajeDescuento + "%");
+                } else {
+                    precioStr = precioFinal.getText();
+                    precioStr = precioStr.substring(0, precioStr.length() - 1);
+                    precioStr = precioStr.replace(',', '.');
+                    precio = Double.parseDouble(precioStr);
+                    libro.setPrecio(precioStr);
                     libro.setDescuento("No");
                 }
-                
-                List<WebElement> listaAutores=driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i)+"]/div/div/div/p[contains(@class, 'Article-descSub')]/a"));
-                autores="";
-                if(listaAutores.size()==0) libro.setAutor("----");
-                else if(listaAutores.size()>0){
-                    for(int j=0; j<listaAutores.size();j++){
-                        if(j>0)autores=autores+", "+listaAutores.get(j).getText();
-                        else autores=listaAutores.get(j).getText();
+
+                List<WebElement> listaAutores = driver.findElements(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')][" + (i) + "]/div/div/div/p[contains(@class, 'Article-descSub')]/a"));
+                autores = "";
+                if (listaAutores.size() == 0) {
+                    libro.setAutor("No disponible");
+                } else if (listaAutores.size() > 0) {
+                    for (int j = 0; j < listaAutores.size(); j++) {
+                        if (j > 0) {
+                            autores = autores + ", " + listaAutores.get(j).getText();
+                        } else {
+                            autores = listaAutores.get(j).getText();
+                        }
                     }
                     libro.setAutor(autores);
                 }
 
-                WebElement tittle = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')]["+(i)+"]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
+                WebElement tittle = driver.findElement(By.xpath("//div[contains(@id,'dontTouchThisDiv')]/ul/li[contains(@class, 'clearfix Article-item js-ProductList')][" + (i) + "]/div/div/div/p[contains(@class, 'Article-desc') and not(contains(@class, 'Article-descSub'))]/a[not(contains(@title, 'Ver todos los volúmenes de la serie.'))]"));
                 String tituloLibro = tittle.getText();
-                String link= tittle.getAttribute("href");
-                
+                String link = tittle.getAttribute("href");
+
                 libro.setLink(link);
                 libro.setTitulo(tituloLibro);
                 librosResultado.add(libro);
             }
             //Si el la lista de botones ocultos "siguiente página" es >0 entonces estamos en la última página
-            if(driver.findElements(By.xpath("//li[contains(@class,'nextLevel1 hide')]")).size()>0){
-                siguientePag=false;
-            } else{
-                siguientePag=true;
+            if (driver.findElements(By.xpath("//li[contains(@class,'nextLevel1 hide')]")).size() > 0) {
+                siguientePag = false;
+            } else {
+                siguientePag = true;
                 driver.findElement(By.xpath("//li[contains(@class,'nextLevel1')][1]")).click();
             }
-        }while(siguientePag);
+        } while (siguientePag);
         driver.quit();
         return librosResultado;
     }
-    
-    private ArrayList<Libro> buscarAmazon(String titulo, String autor) throws InterruptedException{
+
+    private ArrayList<Libro> buscarAmazon(String titulo, String autor) throws InterruptedException {
         //throw new UnsupportedOperationException("Not supported yet.");
         //preparar el driver
-        
+
         System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
-        
+
         driver.get("https://www.amazon.es/");
         //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
         driver.manage().window().maximize();
-        
-        
+
         WebElement desplegaNavega = driver.findElement(By.id("searchDropdownBox"));
         desplegaNavega.click();
         WebElement dplegaLibro = driver.findElement(By.xpath("//option[contains(@value,'search-alias=stripbooks')]")); //search-alias=stripbooks
         dplegaLibro.click();
-        
+
         WebElement navBar = driver.findElement(By.id("twotabsearchtextbox"));
-        navBar.sendKeys(titulo+" "+autor);
+        navBar.sendKeys(titulo + " " + autor);
         navBar.submit();
-        
-        
+
         //Array para meter todos los libros
         ArrayList<Libro> librosResultado = new ArrayList<>();
-        boolean siguientePag= false; //pagnNextString
-        //do{
-            //WaitForAjax(driver);
-                
-                List<WebElement> librosPagina = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li")); 
-                
-                for(int i=1; i<=librosPagina.size();i++){
-                   Libro libro = new Libro("Amazon.es");
-                   WebElement tituloLibro = driver.findElement(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//a[contains(@class,'a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal')]"));
-                   List<WebElement> precioLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//span[contains(@class,'a-size-base a-color-price s-price a-text-bold')]"));
-                   List<WebElement> autorLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//div[contains(@class,'a-row a-spacing-none')]/span[contains(@class,'a-size-small a-color-secondary')]"));
-                   libro.setLink(tituloLibro.getAttribute("href"));
-                   libro.setTitulo(tituloLibro.getText());
-                   String precio = precioLibro.get(0).getText();
-                   precio = precio.substring(4, precio.length() - 1); 
-                   precio = precio.replace(',', '.');
-                   double precioDoble=Double.parseDouble(precio);
-                   String autordeLibro = autorLibro.get(2).getText();
-                   if(autordeLibro.contains(" y"))
-                       autordeLibro = autordeLibro+" "+autorLibro.get(3).getText();
-                   libro.setAutor(autordeLibro);
-                    libro.setPrecio(precioDoble);
-                    librosResultado.add(libro);
+        boolean siguientePag = false; //pagnNextString
+        do {
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            List<WebElement> librosPagina = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li"));
+
+            for (int i = 1; i <= librosPagina.size(); i++) {
+                System.out.println(i);
+                Libro libro = new Libro("Amazon.es");
+                WebElement tituloLibro = driver.findElement(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li[" + i + "]//a[contains(@class,'a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal')]"));
+                List<WebElement> precioLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li[" + i + "]//span[contains(@class,'a-size-base a-color-price a-text-bold') or contains(@class,'a-size-base a-color-price s-price a-text-bold')]"));
+                List<WebElement> autorLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li[" + i + "]//div[contains(@class,'a-row a-spacing-none')]/span[contains(@class,'a-size-small a-color-secondary')]"));
+                libro.setLink(tituloLibro.getAttribute("href"));
+                libro.setTitulo(tituloLibro.getText());
+                String precio = "No disponible";
+
+                if (precioLibro.size() > 0) {
+                    precio = precioLibro.get(0).getText();
+                    precio = precio.substring(4, precio.length() - 1);
+                    precio = precio.replace(".", "");
+                    precio = precio.replace(',', '.');
+                    double precioDoble = Double.parseDouble(precio);
 
                 }
+                String autordeLibro = "";
+                if(autorLibro.size() < 2){
+                    autordeLibro = "No disponible";
+                }
+                else if (autorLibro.size() < 3) {
+                    autordeLibro = autorLibro.get(1).getText();
+                } else {
+                    autordeLibro = autorLibro.get(2).getText();
+                }
                 
+                if (autordeLibro.contains(" y")) {
+                    autordeLibro = autordeLibro + " " + autorLibro.get(3).getText();
+                }
                 
                
-                
-                
-           
-//HAY QUE SEGUIR A PARTIR DE AQUI
-                    
-        //}while(siguientePag);//
+
+                libro.setAutor(autordeLibro);
+                libro.setPrecio(precio);
+                librosResultado.add(libro);
+
+            }
+            List<WebElement> paginasSiguientes = driver.findElements(By.id("pagnNextString"));
+            siguientePag = paginasSiguientes.size() > 0;
+
+            if (siguientePag) {
+                paginasSiguientes.get(0).click();
+            }
+
+        } while (siguientePag);
         driver.quit();
         return librosResultado;
-        
-        
-        
+
     }
-    
-    
-    
-    private void addLibrosToTabla(ArrayList<Libro> libros){
+
+    private void addLibrosToTabla(ArrayList<Libro> libros) {
         DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
-        for (Libro libro: libros) {
+        for (Libro libro : libros) {
             model.addRow(new Object[]{libro.getWeb(), libro.getTitulo(), libro.getAutor(), libro.getPrecio(), libro.getDescuento(), libro.getLink()});
         }
-    
+
     }
-    
-    public static void waitForPageLoad(WebDriver wdriver) {
+
+    /*public static void waitForPageLoad(WebDriver wdriver) {
+        WebDriverWait wait = new WebDriverWait(wdriver, 60);
+        Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
+            @Override
+            public boolean apply(WebDriver input) {
+                return ((JavascriptExecutor) input)
+                        .executeScript("return document.readyState").equals("complete");
+            }
+        };
+        wait.until(pageLoaded);
+    }*/
+    public static void waitForPageLoaded(WebDriver driver) {
+        ExpectedCondition<Boolean> expectation = new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver driver) {
+                return ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete");
+            }
+        };
+        try {
+            Thread.sleep(1000);
+            WebDriverWait wait = new WebDriverWait(driver, 30);
+            wait.until(expectation);
+        } catch (Throwable error) {
+            System.out.println("Timeout waiting for Page Load Request tocomplete.");
+        }
+    }
+
+    public static void waitForPageLoad2(WebDriver wdriver) {
         new WebDriverWait(wdriver, 20).until(
-            webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
     }
-    public static void WaitForAjax(WebDriver driver) throws InterruptedException{
-        while(true){
-            Boolean ajaxIsComplete = (Boolean) ((JavascriptExecutor)driver).executeScript("return jQuery.active == 0");
-            if(ajaxIsComplete){
+
+    public static void WaitForAjax(WebDriver driver) throws InterruptedException {
+        while (true) {
+            Boolean ajaxIsComplete = (Boolean) ((JavascriptExecutor) driver).executeScript("return jQuery.active == 0");
+            if (ajaxIsComplete) {
                 break;
             }
             Thread.sleep(100);

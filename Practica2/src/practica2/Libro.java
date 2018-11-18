@@ -4,7 +4,7 @@ package practica2;
 public class Libro {
     private String titulo;
     private String autor;
-    private double precio;
+    private String precio;
     private String descuento;
     private String web;
     private String link;
@@ -16,14 +16,14 @@ public class Libro {
         this.web = web;
     }
 
-    public Libro(String titulo, String autor, double precio, String web, String link) {
+    public Libro(String titulo, String autor, String precio, String web, String link) {
         this.titulo = titulo;
         this.autor = autor;
         this.precio = precio;
         this.web= web;
     }
 
-    public Libro(String titulo, String autor, double precio, String descuento, String web, String link) {
+    public Libro(String titulo, String autor, String precio, String descuento, String web, String link) {
         this.titulo = titulo;
         this.autor = autor;
         this.precio = precio;
@@ -47,11 +47,11 @@ public class Libro {
         this.autor = autor;
     }
 
-    public double getPrecio() {
+    public String getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(String precio) {
         this.precio = precio;
     }
 
