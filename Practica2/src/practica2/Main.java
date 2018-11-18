@@ -185,8 +185,13 @@ public class Main extends javax.swing.JFrame {
         }
         //TODO: Buscar resultados en Amazon si se ha pedido
         if(amazon){
-            ArrayList<Libro> librosAmazon = buscarAmazon(titulo,autor);
-            libros.addAll(librosAmazon);
+            try {
+                ArrayList<Libro> librosAmazon;
+                librosAmazon = buscarAmazon(titulo,autor);
+                libros.addAll(librosAmazon);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         //Mostrar resultados en TablaResultado
         addLibrosToTabla(libros);
@@ -245,7 +250,7 @@ public class Main extends javax.swing.JFrame {
         List<WebElement> categoriaLibro = driver.findElements(By.xpath("//span[contains(@data-category, '2!1')][contains(@class,'Affine-link lienInverse')]"));
         
         if(categoriaLibro.size()>0) categoriaLibro.get(0).click();
-        
+        //busca el libro el que sea y luego elije la categoria libros.
         ArrayList<Libro> librosResultado = new ArrayList<>();
         boolean siguientePag= false;
         do{
@@ -322,9 +327,72 @@ public class Main extends javax.swing.JFrame {
         return librosResultado;
     }
     
-    private ArrayList<Libro> buscarAmazon(String titulo, String autor){
-        throw new UnsupportedOperationException("Not supported yet.");
+    private ArrayList<Libro> buscarAmazon(String titulo, String autor) throws InterruptedException{
+        //throw new UnsupportedOperationException("Not supported yet.");
+        //preparar el driver
+        
+        System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        
+        driver.get("https://www.amazon.es/");
+        //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
+        driver.manage().window().maximize();
+        
+        
+        WebElement desplegaNavega = driver.findElement(By.id("searchDropdownBox"));
+        desplegaNavega.click();
+        WebElement dplegaLibro = driver.findElement(By.xpath("//option[contains(@value,'search-alias=stripbooks')]")); //search-alias=stripbooks
+        dplegaLibro.click();
+        
+        WebElement navBar = driver.findElement(By.id("twotabsearchtextbox"));
+        navBar.sendKeys(titulo+" "+autor);
+        navBar.submit();
+        
+        
+        //Array para meter todos los libros
+        ArrayList<Libro> librosResultado = new ArrayList<>();
+        boolean siguientePag= false; //pagnNextString
+        //do{
+            //WaitForAjax(driver);
+                
+                List<WebElement> librosPagina = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li")); 
+                
+                for(int i=1; i<=librosPagina.size();i++){
+                   Libro libro = new Libro("Amazon.es");
+                   WebElement tituloLibro = driver.findElement(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//a[contains(@class,'a-link-normal s-access-detail-page  s-color-twister-title-link a-text-normal')]"));
+                   List<WebElement> precioLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//span[contains(@class,'a-size-base a-color-price s-price a-text-bold')]"));
+                   List<WebElement> autorLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li["+i+"]//div[contains(@class,'a-row a-spacing-none')]/span[contains(@class,'a-size-small a-color-secondary')]"));
+                   libro.setLink(tituloLibro.getAttribute("href"));
+                   libro.setTitulo(tituloLibro.getText());
+                   String precio = precioLibro.get(0).getText();
+                   precio = precio.substring(4, precio.length() - 1); 
+                   precio = precio.replace(',', '.');
+                   double precioDoble=Double.parseDouble(precio);
+                   String autordeLibro = autorLibro.get(2).getText();
+                   if(autordeLibro.contains(" y"))
+                       autordeLibro = autordeLibro+" "+autorLibro.get(3).getText();
+                   libro.setAutor(autordeLibro);
+                    libro.setPrecio(precioDoble);
+                    librosResultado.add(libro);
+
+                }
+                
+                
+               
+                
+                
+           
+//HAY QUE SEGUIR A PARTIR DE AQUI
+                    
+        //}while(siguientePag);//
+        driver.quit();
+        return librosResultado;
+        
+        
+        
     }
+    
+    
     
     private void addLibrosToTabla(ArrayList<Libro> libros){
         DefaultTableModel model = (DefaultTableModel) TablaResultado.getModel();
