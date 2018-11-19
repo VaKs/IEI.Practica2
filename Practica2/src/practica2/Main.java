@@ -358,7 +358,7 @@ public class Main extends javax.swing.JFrame {
         boolean siguientePag = false; //pagnNextString
         do {
             try {
-                TimeUnit.SECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -373,6 +373,7 @@ public class Main extends javax.swing.JFrame {
                 List<WebElement> autorLibro = driver.findElements(By.xpath("//ul[contains(@id,'s-results-list-atf')]/li[" + i + "]//div[contains(@class,'a-row a-spacing-none')]/span[contains(@class,'a-size-small a-color-secondary')]"));
                 libro.setLink(tituloLibro.getAttribute("href"));
                 libro.setTitulo(tituloLibro.getText());
+                System.out.println(libro.getTitulo());
                 String precio = "No disponible";
 
                 if (precioLibro.size() > 0) {
@@ -392,8 +393,8 @@ public class Main extends javax.swing.JFrame {
                 } else {
                     autordeLibro = autorLibro.get(2).getText();
                 }
-                
-                if (autordeLibro.contains(" y")) {
+                System.out.println(autordeLibro+" "+autorLibro.size());
+                if (autordeLibro.contains(" y") && autorLibro.size() > 3) {
                     autordeLibro = autordeLibro + " " + autorLibro.get(3).getText();
                 }
                 
@@ -406,10 +407,15 @@ public class Main extends javax.swing.JFrame {
 
             }
             List<WebElement> paginasSiguientes = driver.findElements(By.id("pagnNextString"));
+            List<WebElement> paginasSiguientesLink = driver.findElements(By.id("pagnNextLink"));
+            boolean siguientePagLink = paginasSiguientesLink.size() >0;
             siguientePag = paginasSiguientes.size() > 0;
+            
 
-            if (siguientePag) {
+            if (siguientePag && siguientePagLink) {
                 paginasSiguientes.get(0).click();
+            }else{
+                siguientePag=false;
             }
 
         } while (siguientePag);
