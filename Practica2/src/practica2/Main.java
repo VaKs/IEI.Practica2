@@ -171,7 +171,8 @@ public class Main extends javax.swing.JFrame {
         boolean fnac = CBFnac.isSelected();
         ArrayList<Libro> libros = new ArrayList<>();
 
-        //TODO: si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.    
+        //TODO: si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.  
+        
         //Buscar resultados en Fnac si se ha pedido
         if (fnac) {
             ArrayList<Libro> librosFnac = null;
@@ -182,7 +183,7 @@ public class Main extends javax.swing.JFrame {
             }
             libros.addAll(librosFnac);
         }
-        //TODO: Buscar resultados en Amazon si se ha pedido
+        //Buscar resultados en Amazon si se ha pedido
         if (amazon) {
             try {
                 ArrayList<Libro> librosAmazon;
@@ -400,6 +401,7 @@ public class Main extends javax.swing.JFrame {
 
                 libro.setAutor(autordeLibro);
                 libro.setPrecio(precio);
+                libro.setDescuento("5%");
                 librosResultado.add(libro);
 
             }
