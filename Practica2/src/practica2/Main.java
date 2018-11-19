@@ -5,22 +5,22 @@
  */
 package practica2;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
@@ -59,6 +59,7 @@ public class Main extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnBuscar.setText("Buscar");
+        btnBuscar.setEnabled(false);
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBuscarActionPerformed(evt);
@@ -71,12 +72,46 @@ public class Main extends javax.swing.JFrame {
         LAutor.setToolTipText("");
 
         CBAmazon.setText("Amazon");
+        CBAmazon.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                CheckInput();
+            }
+        });
 
         CBFnac.setText("Fnac");
+        CBFnac.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                CheckInput();
+            }
+        });
 
         TxTLibro.setToolTipText("");
+        TxTLibro.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+        });
 
         TxTAutor.setToolTipText("");
+        TxTAutor.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                CheckInput();
+            }
+        });
 
         BtnLimpiar.setText("Limpiar");
         BtnLimpiar.addActionListener(new java.awt.event.ActionListener() {
@@ -154,6 +189,17 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.  
+     */
+    private void CheckInput() {
+     if((CBAmazon.isSelected() || CBFnac.isSelected())&&(!TxTAutor.getText().isEmpty()|| !TxTLibro.getText().isEmpty())){
+         btnBuscar.setEnabled(true);
+     }else{
+         btnBuscar.setEnabled(false);
+     }
+    }
+    
     private void BtnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnLimpiarActionPerformed
         TxTAutor.setText("");
         TxTLibro.setText("");
@@ -171,8 +217,6 @@ public class Main extends javax.swing.JFrame {
         boolean fnac = CBFnac.isSelected();
         ArrayList<Libro> libros = new ArrayList<>();
 
-        //TODO: si no se ha seleccionado: titulo, autor y al menos un sitio web, mostrar error.  
-        
         //Buscar resultados en Fnac si se ha pedido
         if (fnac) {
             ArrayList<Libro> librosFnac = null;

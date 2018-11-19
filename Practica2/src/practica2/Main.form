@@ -96,6 +96,7 @@
     <Component class="javax.swing.JButton" name="btnBuscar">
       <Properties>
         <Property name="text" type="java.lang.String" value="Buscar"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarActionPerformed"/>
@@ -116,21 +117,33 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Amazon"/>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="CBAmazon.addItemListener(new ItemListener() {&#xd;&#xa;    @Override&#xd;&#xa;    public void itemStateChanged(ItemEvent e) {&#xd;&#xa;        CheckInput();&#xd;&#xa;    }&#xd;&#xa;});"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JCheckBox" name="CBFnac">
       <Properties>
         <Property name="text" type="java.lang.String" value="Fnac"/>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="CBFnac.addItemListener(new ItemListener() {&#xd;&#xa;    @Override&#xd;&#xa;    public void itemStateChanged(ItemEvent e) {&#xd;&#xa;        CheckInput();&#xd;&#xa;    }&#xd;&#xa;});"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="TxTLibro">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="TxTLibro.getDocument().addDocumentListener(new DocumentListener() {&#xd;&#xa;  public void changedUpdate(DocumentEvent e) {&#xd;&#xa;    CheckInput();&#xd;&#xa;  }&#xd;&#xa;  public void removeUpdate(DocumentEvent e) {&#xd;&#xa;    CheckInput();&#xd;&#xa;  }&#xd;&#xa;  public void insertUpdate(DocumentEvent e) {&#xd;&#xa;    CheckInput();&#xd;&#xa;  }&#xd;&#xa;});"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="TxTAutor">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="TxTAutor.getDocument().addDocumentListener(new DocumentListener() {&#xa;            public void changedUpdate(DocumentEvent e) {&#xa;                CheckInput();&#xa;            }&#xa;            public void removeUpdate(DocumentEvent e) {&#xa;                CheckInput();&#xa;            }&#xa;            public void insertUpdate(DocumentEvent e) {&#xa;                CheckInput();&#xa;            }&#xa;        });"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="BtnLimpiar">
       <Properties>
