@@ -218,11 +218,16 @@ public class Main extends javax.swing.JFrame {
         boolean fnac = CBFnac.isSelected();
         ArrayList<Libro> libros = new ArrayList<>();
 
+        System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
+        driver.manage().window().maximize();
+        
         //Buscar resultados en Fnac si se ha pedido
         if (fnac) {
             ArrayList<Libro> librosFnac = null;
             try {
-                librosFnac = buscarFnac(titulo, autor);
+                librosFnac = buscarFnac(driver, titulo, autor);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -232,12 +237,13 @@ public class Main extends javax.swing.JFrame {
         if (amazon) {
             try {
                 ArrayList<Libro> librosAmazon;
-                librosAmazon = buscarAmazon(titulo, autor);
+                librosAmazon = buscarAmazon(driver, titulo, autor);
                 libros.addAll(librosAmazon);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        driver.quit();
         //Mostrar resultados en TablaResultado
         addLibrosToTabla(libros);
     }//GEN-LAST:event_btnBuscarActionPerformed
@@ -278,14 +284,9 @@ public class Main extends javax.swing.JFrame {
         });
     }
 
-    private ArrayList<Libro> buscarFnac(String titulo, String autor) throws InterruptedException {
-        //preparar el driver
-        System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-
+    private ArrayList<Libro> buscarFnac(WebDriver driver, String titulo, String autor) throws InterruptedException {
         driver.get("https://www.fnac.es/");
-        //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
-        driver.manage().window().maximize();
+        
 
         WebElement navBar = driver.findElement(By.id("Fnac_Search"));
         navBar.sendKeys(titulo + " " + autor);
@@ -310,7 +311,7 @@ public class Main extends javax.swing.JFrame {
             double precio, descuento, porcentajeDescuento;
             boolean tieneDescuento = false;
 
-            //TODO Si articulosPorPagina.size() < 1 crear un libro con titulo xxxxx para indicar que no se encuentran items.
+            //Si articulosPorPagina.size() < 1 crear un libro con titulo xxxxx para indicar que no se encuentran items.
             if (!articulosPorPagina.isEmpty()) {
                 for (int i = 1; i <= articulosPorPagina.size(); i++) {
                     haHabidoArticulos = true;
@@ -393,20 +394,11 @@ public class Main extends javax.swing.JFrame {
             }
 
         } while (siguientePag);
-        driver.quit();
         return librosResultado;
     }
 
-    private ArrayList<Libro> buscarAmazon(String titulo, String autor) throws InterruptedException {
-        //throw new UnsupportedOperationException("Not supported yet.");
-        //preparar el driver
-
-        System.setProperty("webdriver.chrome.driver", ".\\webDriver\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-
+    private ArrayList<Libro> buscarAmazon(WebDriver driver, String titulo, String autor) throws InterruptedException {
         driver.get("https://www.amazon.es/");
-        //Maximizar la ventana para evitar problemas con código que cambia con el tamaño
-        driver.manage().window().maximize();
 
         WebElement desplegaNavega = driver.findElement(By.id("searchDropdownBox"));
         desplegaNavega.click();
@@ -419,7 +411,7 @@ public class Main extends javax.swing.JFrame {
 
         //Array para meter todos los libros
         ArrayList<Libro> librosResultado = new ArrayList<>();
-        boolean siguientePag = false; //pagnNextString
+        boolean siguientePag = false;
         boolean haHabidoArticulos = false;
         do {
             try {
@@ -492,7 +484,6 @@ public class Main extends javax.swing.JFrame {
             }
 
         } while (siguientePag);
-        driver.quit();
         return librosResultado;
 
     }
